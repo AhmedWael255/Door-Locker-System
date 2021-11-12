@@ -4,60 +4,65 @@
 /* Version  :   V01              */
 /*********************************/
 
-/********************************
- * 				MC2				*
- ********************************/
+/****************************
+ * 			CMU ECU			*
+ ****************************/
 
 #include "CMU.h"
+#include "01-LIB/STD_Types.h"
+#include "03-EEPROM_External/EEPROM.h"
+#include "05-UART/UART.h"
+
+u8 Status;
 
 int main()
 {
 
+
 	/*Description:
 	 * Initialize the Main Modules which are
-	 * Buzzer, UART, DC Motor and I2C
+	 * Buzzer, UART, DC Motor and EEPROM
 	 * And Displays a Message after Initialization
 	 */
 	Init_Modules();
 
-	/*If its the first time to turn on MC2 then the Password will be set for the first time
-	 * then change the status to be active*/
-#if (Status == FistOpen)
+	/*Check the last saved Status of the ECU
+	 * in the EEPROM and Send if to the HMI ECU
+	 * */
+	u8 Status_Address = EEPROM_STATUS_ADDRESS;
+	EEPROM_ReadData(Status_Address, &Status);
 
-	/*Description:
-	 * Function that receives the Password from MC1 using UART then
-	 * saves it on the EEPROM
-	 */
-	Set_Password();
-
-	/*Change the status from First time Open to active*/
-#undef Status
-#define Status Active
-
-#endif
-
-#if (Status == Active)
-
-	/*Description:
-	 * Function that Receives one of the two actions either
-	 * Opening the door or changing the Password
-	 * each time it receives and action it sends ACK that its Ready
-	 *
-	 * if action was Opening the door then it Checks the Password and
-	 * if correct it receives a message to open the door , if not after three
-	 * times it receives a message to start the Buzzer.
-	 *
-	 *  if action was changing the password then it wait for the new password
-	 *  to be sent then saves it.
-	 */
-
-	Recieve_Action();
-
-#endif
+	UART_sendData(Status);
 
 	while(1)
 	{
+		/*Wait for checking the current status of the ECU*/
+		Status = UART_recieveData();
 
+		switch(Status)
+		{
+		/*If its the first time then save te Password in the EEPROM*/
+		case Idle:
+			Set_Password();
+			break;
+
+		/*If its not the first time then check the entered password*/
+		case Active:
+			Check_Password();
+			break;
+
+		/*If Password was entered three times wrong then Open Buzzer and mock the system*/
+		case ActionBuzzer:
+			/*If the Password is Wrong then Start Buzzer*/
+			Start_Buzzer();
+			break;
+
+		/*If password was right then Open the door*/
+		case ActionDoor:
+			/*If the Password is correct then Open the Door*/
+			Check_Password();
+			break;
+		}
 	}
 
 	return 0;

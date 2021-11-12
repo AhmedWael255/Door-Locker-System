@@ -7,8 +7,22 @@
 #ifndef HMI_H_
 #define HMI_H_
 
+#include "01-LIB/STD_Types.h"
+
+/*Displays the Status of HMI MC1*/
+extern u8 Status;
+
 /*Displays the Size of Password*/
 #define PasswordSize    5
+
+/*Macros to display the Status of a Function in MC1*/
+#define Idle			11
+#define Active			22
+#define MainMenu		33
+#define Warning			44
+#define ActionBuzzer	55
+#define ActionDoor		60
+#define Door			6
 
 /*Defines the Number of times to try writing the Password if it Wrong*/
 #define NO_OF_TRIAL		3
@@ -65,5 +79,18 @@ void Open_Door(void);
  * then let user enters the new password then displays the Main Menu that display options.
  * */
 void Change_Password(void);
+
+/*Description:
+ * Function that Checks the entered Password
+ * if Password is right then Main Menu Displays
+ * else Buzzer opens and system locks
+ * returns true or false
+ */
+void Check_Password(void);
+
+/*Description:
+ * Displays that System is Locked on LCD
+ */
+void Display_Thief(void);
 
 #endif /* HMI_H_ */

@@ -7,6 +7,13 @@
 #include "EEPROM.h"
 #include "../03-I2C/I2C.h"
 
+
+void EEPROM_Init(void)
+{
+	/*Initialize I2C*/
+	TWI_Init();
+}
+
 u8 EEPROM_writeData(u16 Copy_u16Address, u8 Copy_u8Data)
 {
 	/*Start bit of the I2C and Check if TWI status is Ready

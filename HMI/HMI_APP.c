@@ -6,10 +6,14 @@
 
 
 /********************************
- * 				MC1				*
+ * 			HMI ECU				*
  ********************************/
 
 #include "HMI.h"
+#include "01-LIB/STD_Types.h"
+#include "05-UART/UART.h"
+
+u8 Status;
 
 int main()
 {
@@ -17,27 +21,50 @@ int main()
 	/*Description:
 	 * Initialize the Main Modules which are
 	 * LCD and UART
-	 * And Displays a Message after Initialization
 	 */
 	Init_Modules();
 
-
-	/*Description:
-	 * Function that waits for writing the new password at the first
-	 * time then sends it to the MC2
-	 */
-	Enter_Password();
-
-	/*Description:
-	 * Function that Displays the Options Menu which is:
-	 * Open Door or Change Password
-	 */
-	Display_Menu();
+	/*Check the last status of the ECU */
+	Status = UART_recieveData();
 
 	while(1)
 	{
+		/*Check the First Status of the MCU then Apply Action*/
+		switch(Status)
+		{
+		/*If its first time then Enter Password and save it*/
+		case Idle:
+			UART_sendData(Status);
+			Enter_Password();
+			break;
 
+		/*If its not the first time then enter password to check it
+		 * if its right then Display Main Menu
+		 * if its wrong then enter again
+		 * if its wrong for three times then Change Status to Warning*/
+		case Active:
+			UART_sendData(Status);
+			Check_Password();
+			break;
+
+		/*If Status is Main Menu then Display it*/
+		case MainMenu:
+			Display_Menu();
+			break;
+
+		/*If Password is entered wrong for three times then Lock the System*/
+		case Warning:
+			UART_sendData(ActionBuzzer);
+			Display_Thief();
+			break;
+
+		/*If Password is right then Open the Door*/
+		case Door:
+			UART_sendData(ActionDoor);
+			Open_Door();
+			break;
+
+		}
 	}
-
 	return 0;
 }

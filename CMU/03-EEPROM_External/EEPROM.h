@@ -9,7 +9,7 @@
 
 #include "../01-LIB/STD_Types.h"
 
-
+void EEPROM_Init(void);
 u8 EEPROM_writeData(u16 Copy_u16Address, u8 Copy_u8Data);
 u8 EEPROM_ReadData(u16 Copy_u16Address, u8* Copy_u8Data);
 

@@ -7,14 +7,23 @@
 #ifndef CMU_H_
 #define CMU_H_
 
+#include "01-LIB/STD_Types.h"
+
+extern u8 Status;
+
 /*Address where EEPROM saves the Password*/
 
 #define EEPROM_BASE_ADDRESS		0x0311
+#define EEPROM_STATUS_ADDRESS	0x00C8
 
-/*Macros to display the Status of MC2*/
-#define FirstOpen		0
-#define Active			1
-#define Status			FirstOpen
+/*Macros to display the Status of a Function in MC1*/
+#define Idle			11
+#define Active			22
+#define MainMenu		33
+#define Warning			44
+#define ActionBuzzer	55
+#define ActionDoor		60
+#define Door			6
 
 /*Displays the Size of Password*/
 #define PasswordSize    5
@@ -46,16 +55,6 @@ void Init_Modules(void);
 void Set_Password(void);
 
 /*Description:
- *Receives an action either to change password or open the door
- *this function send ACK in the two options which indicates that
- *UART is Ready for data.
- *If Status is to Change Password then Call the Set_Password Function.
- *If Status is to Open Door then if Password if Correct then it call Open_Door() Function.
- *If Password is Wrong for three times then Call Start_Buzzer() function.
- */
-void Recieve_Action(void);
-
-/*Description:
  * Receives Password from MC1 then Checks it with the
  * Password saved on the EEPROM and if its correct then
  * send a message which says its correct and if its
@@ -74,6 +73,5 @@ void Open_Door(void);
  *Buzzer start to alert for 2 seconds then stops.
  * */
 void Start_Buzzer(void);
-void Save_Password(void);
 
 #endif /* CMU_H_ */

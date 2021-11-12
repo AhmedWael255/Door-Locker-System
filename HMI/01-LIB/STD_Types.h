@@ -23,7 +23,9 @@ typedef  float					    f32;
 typedef  double					    f64;
 
 
-typedef enum{false,true} bool;
+#define false		0
+#define true		1
+
 enum{Error,NoError};
 enum{Low,High};
 
